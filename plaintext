@@ -1,0 +1,9 @@
+COMP2001_ProfileService/
+│
+├── app.py                # Entry point (starts the server)
+├── config.py             # Database configuration & App setup
+├── models.py             # Database tables (The "Profile" class)
+├── profiles.py           # The logic (CRUD functions for profiles)
+├── swagger.yml           # API Definition (OpenAPI 3.0)
+├── requirements.txt      # List of libraries to install
+└── Dockerfile            # Instructions to build the container

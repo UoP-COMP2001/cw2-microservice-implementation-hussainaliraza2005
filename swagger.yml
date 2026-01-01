@@ -1,0 +1,187 @@
+openapi: 3.0.0
+info:
+  title: "Trail App Profile Service"
+  description: "API for managing user profiles and activities (CW2)"
+  version: "1.0.0"
+
+servers:
+  - url: "/api"
+
+paths:
+
+  /profiles:
+    get:
+      operationId: "profiles.read_all"
+      tags: ["Profiles"]
+      summary: "Read the list of all profiles"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Profile"
+    post:
+      operationId: "profiles.create"
+      tags: ["Profiles"]
+      summary: "Create a new profile"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+      responses:
+        "201":
+          description: "Created"
+        "406":
+          description: "Email already exists"
+
+  /profiles/{email}:
+    get:
+      operationId: "profiles.read_one"
+      tags: ["Profiles"]
+      summary: "Read one profile by Email"
+      parameters:
+        - $ref: "#/components/parameters/email"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "404":
+          description: "Not Found"
+    put:
+      operationId: "profiles.update"
+      tags: ["Profiles"]
+      summary: "Update a profile"
+      parameters:
+        - $ref: "#/components/parameters/email"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+      responses:
+        "200":
+          description: "Updated"
+    delete:
+      operationId: "profiles.delete"
+      tags: ["Profiles"]
+      summary: "Delete a profile"
+      parameters:
+        - $ref: "#/components/parameters/email"
+      responses:
+        "200":
+          description: "Deleted"
+
+  
+  /activities:
+    get:
+      operationId: "activities.read_all"
+      tags: ["Activities"]
+      summary: "See all available activity types (Hiking, Running, etc.)"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+    post:
+      operationId: "activities.create"
+      tags: ["Activities"]
+      summary: "Add a new activity type"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Activity"
+      responses:
+        "201":
+          description: "Created"
+
+  
+  /profiles/{email}/activities:
+    get:
+      operationId: "profiles.read_user_activities"
+      tags: ["Profiles"]
+      summary: "See what activities a specific user likes"
+      parameters:
+        - $ref: "#/components/parameters/email"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+    post:
+      operationId: "profiles.add_activity"
+      tags: ["Profiles"]
+      summary: "Add an activity to a user's favorites"
+      parameters:
+        - $ref: "#/components/parameters/email"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Activity_id:
+                  type: integer
+      responses:
+        "201":
+          description: "Activity Added"
+
+components:
+  parameters:
+    email:
+      name: "email"
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    Profile:
+      type: object
+      required:
+        - Email
+        - Username
+      properties:
+        Email:
+          type: string
+          format: email
+        Username:
+          type: string
+        About_me:
+          type: string
+        Location:
+          type: string
+        Dob:
+          type: string
+          format: date
+        Language:
+          type: string
+        Password:
+          type: string
+        Role:
+          type: string
+          enum: ["Admin", "User"]
+    
+    Activity:
+      type: object
+      properties:
+        Activity_id:
+          type: integer
+          readOnly: true
+        Activity:
+          type: string
