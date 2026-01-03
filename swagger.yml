@@ -8,7 +8,7 @@ servers:
   - url: "/api"
 
 paths:
-
+  
   /profiles:
     get:
       operationId: "profiles.read_all"
@@ -78,7 +78,9 @@ paths:
         "200":
           description: "Deleted"
 
-  
+
+  # ACTIVITY ENDPOINTS
+
   /activities:
     get:
       operationId: "activities.read_all"
@@ -106,7 +108,9 @@ paths:
         "201":
           description: "Created"
 
-  
+
+  # LINKING USERS TO ACTIVITIES
+
   /profiles/{email}/activities:
     get:
       operationId: "profiles.read_user_activities"
@@ -140,6 +144,47 @@ paths:
       responses:
         "201":
           description: "Activity Added"
+
+  
+  # SAVED TRAILS (ADVANCED)
+  
+  /profiles/{email}/trails:
+    get:
+      operationId: "profiles.read_saved_trails"
+      tags: ["Saved Trails"]
+      summary: "Get IDs of trails saved by a user"
+      parameters:
+        - $ref: "#/components/parameters/email"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SavedTrail"
+    post:
+      operationId: "profiles.add_saved_trail"
+      tags: ["Saved Trails"]
+      summary: "Save a Trail ID"
+      parameters:
+        - $ref: "#/components/parameters/email"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Trail_id:
+                  type: integer
+      responses:
+        "201":
+          description: "Trail Saved"
+        "404":
+          description: "User not found"
+        "409":
+          description: "Trail already saved"
 
 components:
   parameters:
@@ -185,3 +230,14 @@ components:
           readOnly: true
         Activity:
           type: string
+
+    SavedTrail:
+      type: object
+      properties:
+        Email:
+          type: string
+        Trail_id:
+          type: integer
+        Saved_date:
+          type: string
+          format: date
