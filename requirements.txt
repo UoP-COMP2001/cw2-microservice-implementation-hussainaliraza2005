@@ -5,3 +5,5 @@ flask-marshmallow==0.14.0
 marshmallow-sqlalchemy==0.29.0
 requests==2.31.0
 swagger-ui-bundle==0.0.9
+marshmallow==3.21.0
+pyodbc
