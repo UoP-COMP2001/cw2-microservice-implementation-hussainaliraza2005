@@ -1,6 +1,5 @@
 from config import db, ma
 
-
 class Profile(db.Model):
     __tablename__ = 'Profile'
     __table_args__ = {'schema': 'CW2'}
@@ -14,7 +13,6 @@ class Profile(db.Model):
     Password = db.Column(db.String(30))
     Role = db.Column(db.String(5))
     
-
 class ProfileSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Profile
@@ -34,7 +32,6 @@ class ActivitySchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         sqla_session = db.session
 
-
 class FavouriteActivity(db.Model):
     __tablename__ = 'FavouriteActivity'
     __table_args__ = {'schema': 'CW2'}
@@ -48,6 +45,24 @@ class FavouriteActivitySchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         sqla_session = db.session
 
+# --- NEW: Saved Trails Class ---
+class SavedTrail(db.Model):
+    __tablename__ = 'SavedTrail'
+    __table_args__ = {'schema': 'CW2'}
+
+    Email = db.Column(db.String(30), db.ForeignKey(Profile.Email), primary_key=True)
+    Trail_id = db.Column(db.Integer, primary_key=True)
+    Saved_date = db.Column(db.Date)
+
+class SavedTrailSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = SavedTrail
+        load_instance = True
+        sqla_session = db.session
+
+# Initialize Schemas
+saved_trail_schema = SavedTrailSchema()
+saved_trails_schema = SavedTrailSchema(many=True)
 
 Profile.favourites = db.relationship('FavouriteActivity', backref='user', lazy=True)
 
