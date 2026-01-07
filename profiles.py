@@ -18,13 +18,13 @@ def create(body):
     """
     Responds to POST /profiles
     1. Authenticates against University API
-    2. Creates profile in local DB if valid
+    2. Creates profile in local DB (without saving password)
     """
     # Get data from the request body
     email = body.get("Email")
     password = body.get("Password")
 
- 
+    # --- LSEP: AUTHENTICATION CHECK ---
     # We send the email/password to the University's API to verify identity
     auth_url = "https://web.socem.plymouth.ac.uk/COMP2001/auth/api/users"
     credentials = {"email": email, "password": password}
@@ -51,8 +51,18 @@ def create(body):
     if existing_profile is not None:
         abort(409, f"Profile with email {email} already exists")
 
-    # Create new profile in local database
-    new_profile = profile_schema.load(body, session=db.session)
+    # Create new profile Manually to ensure Password is NOT saved
+    new_profile = Profile(
+        Email=email,
+        Username=body.get('Username'),
+        Location=body.get('Location'),
+        Dob=body.get('Dob'),
+        Language=body.get('Language'),
+        About_me=body.get('About_me'),
+        Role=body.get('Role', 'User')
+        # Note: Password is NOT added here.
+    )
+
     db.session.add(new_profile)
     db.session.commit()
     
@@ -73,18 +83,21 @@ def update(email, body):
     Responds to PUT /profiles/{email}
     """
     existing_profile = Profile.query.filter(Profile.Email == email).one_or_none()
+    
     if existing_profile:
-        # Load the updated data
-        update_profile = profile_schema.load(body, session=db.session)
+        # We manually update fields. 
+        # We do NOT use schema.load here because the incoming body might have 
+        # a password, but our model does not.
         
-        # Update the fields
-        existing_profile.Username = update_profile.Username
-        existing_profile.About_me = update_profile.About_me
-        existing_profile.Location = update_profile.Location
-        existing_profile.Dob = update_profile.Dob
-        existing_profile.Language = update_profile.Language
-        existing_profile.Password = update_profile.Password
-        existing_profile.Role = update_profile.Role
+        existing_profile.Username = body.get('Username', existing_profile.Username)
+        existing_profile.About_me = body.get('About_me', existing_profile.About_me)
+        existing_profile.Location = body.get('Location', existing_profile.Location)
+        existing_profile.Dob = body.get('Dob', existing_profile.Dob)
+        existing_profile.Language = body.get('Language', existing_profile.Language)
+        existing_profile.Role = body.get('Role', existing_profile.Role)
+        
+        # REMOVED: existing_profile.Password = ... 
+        # (We do not allow updating the password locally since we don't store it)
         
         db.session.merge(existing_profile)
         db.session.commit()
@@ -104,14 +117,12 @@ def delete(email):
     else:
         abort(404, f"Profile with email {email} not found")
 
-
+# --- Activity Functions ---
 
 def read_user_activities(email):
     """
     GET /profiles/{email}/activities
-    Returns the list of activities that this specific user likes.
     """
-    # Check if user exists
     user = Profile.query.filter(Profile.Email == email).one_or_none()
     if not user:
         abort(404, f"Person not found for Id: {email}")
@@ -123,28 +134,25 @@ def read_user_activities(email):
 def add_activity(email, body):
     """
     POST /profiles/{email}/activities
-    Links a user to an activity.
     """
     activity_id = body.get('Activity_id')
 
-    # Check if user exists
     user = Profile.query.filter(Profile.Email == email).one_or_none()
     if not user:
         abort(404, f"Person not found for Id: {email}")
     
-    # Check if the activity type exists (e.g. Hiking)
     activity = Activity.query.filter(Activity.Activity_id == activity_id).one_or_none()
     if not activity:
         abort(404, f"Activity not found for Id: {activity_id}")
 
-    # Create the link in the database
     new_fav = FavouriteActivity(Email=email, Activity_id=activity_id)
     db.session.add(new_fav)
     db.session.commit()
     
     return "Activity added", 201
 
-# Saved Trails Functions 
+# --- Saved Trails Functions ---
+
 def read_saved_trails(email):
     """
     GET /profiles/{email}/trails

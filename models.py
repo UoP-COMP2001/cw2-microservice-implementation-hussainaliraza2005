@@ -1,25 +1,31 @@
 from config import db, ma
 
-
 class Profile(db.Model):
     __tablename__ = 'Profile'
     __table_args__ = {'schema': 'CW2'}
 
     Email = db.Column(db.String(30), primary_key=True)
     Username = db.Column(db.String(30))
-    About_me = db.Column('About me', db.String)
+    About_me = db.Column('About me', db.String(500)) 
     Location = db.Column(db.String(50))
     Dob = db.Column(db.Date)
     Language = db.Column(db.String(30))
-    Password = db.Column(db.String(30))
     Role = db.Column(db.String(5))
-    
+
+    # MOVED RELATIONSHIPS INSIDE for "Cascade Delete" (Fixes 500 Error)
+    favourites = db.relationship('FavouriteActivity', backref='user', lazy=True, cascade="all, delete-orphan")
+    saved_trails = db.relationship('SavedTrail', backref='user', lazy=True, cascade="all, delete-orphan")
 
 class ProfileSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Profile
         load_instance = True
         sqla_session = db.session
+    
+   
+    favourites = ma.Nested('FavouriteActivitySchema', many=True)
+    saved_trails = ma.Nested('SavedTrailSchema', many=True)
+
 
 class Activity(db.Model):
     __tablename__ = 'Activity'
@@ -39,22 +45,22 @@ class FavouriteActivity(db.Model):
     __tablename__ = 'FavouriteActivity'
     __table_args__ = {'schema': 'CW2'}
 
-    Email = db.Column(db.String(30), db.ForeignKey(Profile.Email), primary_key=True)
-    Activity_id = db.Column(db.Integer, db.ForeignKey(Activity.Activity_id), primary_key=True)
+    Email = db.Column(db.String(30), db.ForeignKey('CW2.Profile.Email'), primary_key=True)
+    Activity_id = db.Column(db.Integer, db.ForeignKey('CW2.Activity.Activity_id'), primary_key=True)
 
 class FavouriteActivitySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = FavouriteActivity
         load_instance = True
         sqla_session = db.session
+        include_fk = True  
 
 
-# --- NEW: Saved Trails Class ---
 class SavedTrail(db.Model):
     __tablename__ = 'SavedTrail'
     __table_args__ = {'schema': 'CW2'}
 
-    Email = db.Column(db.String(30), db.ForeignKey(Profile.Email), primary_key=True)
+    Email = db.Column(db.String(30), db.ForeignKey('CW2.Profile.Email'), primary_key=True)
     Trail_id = db.Column(db.Integer, primary_key=True)
     Saved_date = db.Column(db.Date)
 
@@ -63,9 +69,8 @@ class SavedTrailSchema(ma.SQLAlchemyAutoSchema):
         model = SavedTrail
         load_instance = True
         sqla_session = db.session
+        include_fk = True
 
-
-Profile.favourites = db.relationship('FavouriteActivity', backref='user', lazy=True, cascade="all, delete")
 
 profile_schema = ProfileSchema()
 profiles_schema = ProfileSchema(many=True)
