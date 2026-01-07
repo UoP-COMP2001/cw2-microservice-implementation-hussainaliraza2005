@@ -65,7 +65,7 @@ class SavedTrailSchema(ma.SQLAlchemyAutoSchema):
         sqla_session = db.session
 
 
-Profile.favourites = db.relationship('FavouriteActivity', backref='user', lazy=True)
+Profile.favourites = db.relationship('FavouriteActivity', backref='user', lazy=True, cascade="all, delete")
 
 profile_schema = ProfileSchema()
 profiles_schema = ProfileSchema(many=True)

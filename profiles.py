@@ -38,7 +38,7 @@ def create(body):
             
         # The API specifically returns ["Verified", True] on success
         response_json = response.json()
-        if response_json != ["Verified", True]:
+        if response_json != ["Verified", "True"]:
              abort(401, "Authentication failed. Credentials rejected.")
 
     except requests.exceptions.RequestException:
@@ -144,7 +144,7 @@ def add_activity(email, body):
     
     return "Activity added", 201
 
-# --- NEW: Saved Trails Functions ---
+# Saved Trails Functions 
 def read_saved_trails(email):
     """
     GET /profiles/{email}/trails
