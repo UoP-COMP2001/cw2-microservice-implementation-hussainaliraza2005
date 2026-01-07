@@ -24,7 +24,7 @@ def create(body):
     email = body.get("Email")
     password = body.get("Password")
 
-    # --- LSEP: AUTHENTICATION CHECK ---
+    # LSEP: AUTHENTICATION CHECK 
     # We send the email/password to the University's API to verify identity
     auth_url = "https://web.socem.plymouth.ac.uk/COMP2001/auth/api/users"
     credentials = {"email": email, "password": password}
@@ -44,7 +44,7 @@ def create(body):
     except requests.exceptions.RequestException:
         # If the university server is unreachable
         abort(503, "Authentication Service Unavailable")
-    # ----------------------------
+    
 
     # Check if profile already exists in our local database
     existing_profile = Profile.query.filter(Profile.Email == email).one_or_none()
@@ -60,7 +60,7 @@ def create(body):
         Language=body.get('Language'),
         About_me=body.get('About_me'),
         Role=body.get('Role', 'User')
-        # Note: Password is NOT added here.
+        # Password is NOT added here.
     )
 
     db.session.add(new_profile)
@@ -96,8 +96,8 @@ def update(email, body):
         existing_profile.Language = body.get('Language', existing_profile.Language)
         existing_profile.Role = body.get('Role', existing_profile.Role)
         
-        # REMOVED: existing_profile.Password = ... 
-        # (We do not allow updating the password locally since we don't store it)
+         
+        # (Do not allow updating the password locally since it is not stored, this is to improve security as mentioned in external authenticaion in documentation)
         
         db.session.merge(existing_profile)
         db.session.commit()
@@ -117,7 +117,7 @@ def delete(email):
     else:
         abort(404, f"Profile with email {email} not found")
 
-# --- Activity Functions ---
+# Activity Functions 
 
 def read_user_activities(email):
     """
@@ -151,7 +151,7 @@ def add_activity(email, body):
     
     return "Activity added", 201
 
-# --- Saved Trails Functions ---
+# Saved Trails Functions
 
 def read_saved_trails(email):
     """
