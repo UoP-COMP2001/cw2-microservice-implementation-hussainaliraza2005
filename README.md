@@ -16,16 +16,11 @@ This service handles:
 - **Containerization:** Docker
 
 ## How to Run (Docker)
-The image is hosted on Docker Hub. You can run it directly using the following commands:
+The image is hosted on Docker Hub. You can run it using the following commands.
 
-### 1. Pull the Image
-Open terminal and run:
+### 1. Pull and run the image
 
-```bash
+~~~bash
 docker pull hussainaliraza/profile-service:latest
-
-### 1. Run the Image
-Open terminal and run:
-
-```bash
-docker --name profile-service -p 8000:8000 hussainaliraza/profile-service:latest
+docker run --name profile-service -p 8000:8000 hussainaliraza/profile-service:latest
+~~~
