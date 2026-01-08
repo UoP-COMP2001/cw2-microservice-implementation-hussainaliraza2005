@@ -15,9 +15,11 @@ This service handles:
 - **Database:** MS SQL Server (Schema: `CW2`)
 - **Containerization:** Docker
 
-## How to Run (For Markers)
+## How to Run (Docker)
 The image is hosted on Docker Hub. You can run it directly using the following commands:
 
 ### 1. Pull the Image
+Open terminal and run:
+
 ```bash
-docker pull <hussainaliraza >/profile-service
+docker pull hussainaliraza/profile-service:latest
