@@ -23,3 +23,9 @@ Open terminal and run:
 
 ```bash
 docker pull hussainaliraza/profile-service:latest
+
+### 1. Run the Image
+Open terminal and run:
+
+```bash
+docker --name profile-service -p 8000:8000 hussainaliraza/profile-service:latest
